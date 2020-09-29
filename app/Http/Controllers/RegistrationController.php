@@ -12,6 +12,11 @@ use Illuminate\Http\Request;
 
 class RegistrationController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth')->except(['create']);
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -23,7 +28,8 @@ class RegistrationController extends Controller
             'student.religion',
             'student.race',
             'student.gender',
-            'school'
+            'school',
+            'status'
         )->get();
 
         return view('registrations.index', compact('registrations'));
@@ -69,7 +75,7 @@ class RegistrationController extends Controller
         $registration = new Registration();
         $registration->student_id = $student->id;
         $registration->school_id = $request->school;
-        $registration->status_id = 1;
+        $registration->status_id = Registration::STATUS_PENDING;
         $registration->save();
 
         return redirect()->back()->with(
@@ -123,5 +129,39 @@ class RegistrationController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function approve($id)
+    {
+        $registration = Registration::find($id);
+        $registration->status_id = Registration::STATUS_ACCEPTED;
+        $registration->matric_number = $this->getRandomNumber();
+        $registration->save();
+
+        return redirect()->back()->with(
+            [
+                'status' => true,
+                'message' => 'Registration successfully approved.'
+            ]
+        );
+    }
+
+    public function reject($id)
+    {
+        $registration = Registration::find($id);
+        $registration->status_id = Registration::STATUS_REJECTED;
+        $registration->save();
+
+        return redirect()->back()->with(
+            [
+                'status' => true,
+                'message' => 'Registration successfully rejected.'
+            ]
+        );
+    }
+
+    private function getRandomNumber()
+    {
+        return rand(10000, 100000);
     }
 }

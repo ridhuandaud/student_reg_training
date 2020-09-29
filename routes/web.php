@@ -22,4 +22,7 @@ Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
 
+Route::get('/registrations/approve/{id}', 'RegistrationController@approve')->name('registrations.approve');
+Route::get('/registrations/reject/{id}', 'RegistrationController@reject')->name('registrations.reject');
+
 Route::resource('/registrations', 'RegistrationController');
